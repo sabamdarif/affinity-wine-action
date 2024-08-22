@@ -1,5 +1,5 @@
 
-![Logo](https://codeberg.org/wanesty/affinity-wine-docs/raw/branch/guide-wine9.13-part3/publisher-wine.avif)
+![Logo](demo.png)
 > Orginal image is from : https://codeberg.org/wanesty/affinity-wine-docs
 
 
@@ -20,18 +20,20 @@ Build ElementalWarrior's Wine using github action to run Affinity apps in linux
 [Orginal Step By Step Documentation](https://codeberg.org/wanesty/affinity-wine-docs)
 ## How to setup the workflow
 
-**Don't rename the fork , because i use [absolute path](https://www.redhat.com/sysadmin/linux-path-absolute-relative) in the yml file `/home/runner/work/affinity-wine/` insted of `$HOME`**
-
-- Go to your github account [setting](https://github.com/settings/profile)
-- Go to [Developer Settings](https://github.com/settings/tokens)
-- There under `Personal access tokens` , go to [token clasic](https://github.com/settings/tokens)
-- Click on `Generate New Token` and `Generate new token (clasic)`
-- Generate the token
-- Copy it
 - Open the fork repo
-- Under `Security` click on `Secrets and variables`
 - Click on `Actions`
-- Create `new repository secret`
-- Name it **`TOKEN_TO_UPLOAD`**
-- In value section put Generated token and save it
+- Enable the workflow
+- Start the workflow called `Compile Affinity Wine`
 - Now run the workflow
+- After Workflow success, click on it
+- In `Summary` section under `Artifacts` you get a file called `Affinity-Wine-Build-`
+- Download and extract it
+
+## Appendix
+
+:warning: **Github free user might get a warning about like this :point_down:**
+
+_This step has been truncated due to its large size. Download the full logs from the menu once the workflow run has completed._
+>But the build still continues
+
+:warning:***If you have any display or graphics-related issues, try using it with the X11 session***

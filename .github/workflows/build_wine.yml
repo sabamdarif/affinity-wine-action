@@ -1,4 +1,4 @@
-name: Compile Wine
+name: Compile Affinity Wine
 
 on:
   push:
@@ -11,12 +11,13 @@ on:
 
 jobs:
   build:
-    permissions: write-all
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Install dependencies
       run: |
@@ -34,40 +35,33 @@ jobs:
 
     - name: Clone Wine repository
       run: |
-        git clone https://gitlab.winehq.org/ElementalWarrior/wine.git /home/runner/work/affinity-wine/ElementalWarrior-wine
-        cd /home/runner/work/affinity-wine/ElementalWarrior-wine
+        git clone https://gitlab.winehq.org/ElementalWarrior/wine.git ${{ github.workspace }}/ElementalWarrior-wine
+        cd ${{ github.workspace }}/ElementalWarrior-wine
         git switch affinity-photo3-wine9.13-part3
 
     - name: Build Wine
       run: |
         CORES=$(nproc)
-        mkdir -p /home/runner/work/affinity-wine/winewow64-build/ /home/runner/work/affinity-wine/wine-install/
-        cd /home/runner/work/affinity-wine/winewow64-build
-        /home/runner/work/affinity-wine/ElementalWarrior-wine/configure --prefix="/home/runner/work/affinity-wine/wine-install" --enable-archs=i386,x86_64
+        mkdir -p ${{ github.workspace }}/winewow64-build/ ${{ github.workspace }}/wine-install/
+        cd ${{ github.workspace }}/winewow64-build
+        ${{ github.workspace }}/ElementalWarrior-wine/configure --prefix="${{ github.workspace }}/wine-install" --enable-archs=i386,x86_64
         make --jobs $CORES
         make install
-        rm -rf /home/runner/work/affinity-wine/winewow64-build
+        rm -rf ${{ github.workspace }}/winewow64-build
 
     - name: Verify Wine installation
       run: |
-        ls -la /home/runner/work/affinity-wine/wine-install
+        ls -la ${{ github.workspace }}/wine-install
+        mv ${{ github.workspace }}/wine-install ${{ github.workspace }}/wine-affinity
 
     - name: Archive Wine installation
-      run: tar -czvf /home/runner/work/affinity-wine/wine-install.tar.gz -C /home/runner/work/affinity-wine/wine-install/ .
+      run: tar -czvf ${{ github.workspace }}/wine-affinity.tar.gz -C ${{ github.workspace }}/wine-affinity/ .
 
     - name: Verify tarball creation
-      run: ls -la /home/runner/work/affinity-wine/wine-install.tar.gz
+      run: ls -la ${{ github.workspace }}/wine-affinity.tar.gz
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
         name: Affinity-Wine-Build-${{ github.run_id }}
-        path: /home/runner/work/affinity-wine/wine-install.tar.gz
-
-    - name: Upload to release
-      uses: ncipollo/release-action@v1
-      with:
-        repo_token: ${{ secrets.TOKEN_TO_UPLOAD }}
-        file: /home/runner/work/affinity-wine/wine-install.tar.gz
-        asset_name: Affinity-Wine-affinity-photo3-wine9.13-part3.tar.gz
-        tag: affinity-photo3-wine9.13-part3
+        path: ${{ github.workspace }}/wine-affinity.tar.gz
