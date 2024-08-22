@@ -1,0 +1,73 @@
+name: Compile Wine
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    permissions: write-all
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          alsa-utils libcups2 libcups2-dev dosbox ffmpeg fontconfig libfreetype6 libfreetype6-dev gettext libgif7 \
+          libgnutls28-dev gstreamer1.0-plugins-base libgstreamer1.0-dev libgtk-3-dev libgphoto2-dev libpcap-dev \
+          libpulse-dev libva-dev libxcomposite-dev libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev \
+          libosmesa6-dev gcc-mingw-w64 libopencl1 ocl-icd-opencl-dev libpcsclite-dev unixodbc-dev libv4l-dev \
+          pulseaudio samba libsane-dev libsdl2-dev v4l-utils mesa-vulkan-drivers libvulkan-dev \
+          winetricks mono-complete libcapi20-dev libkrb5-dev libusb-1.0-0-dev \
+          liblzma-dev libbz2-dev libcurl4-openssl-dev libsqlite3-dev libp11-kit-dev libunwind-dev \
+          libwayland-dev libsmbclient-dev \
+          flex libxkbregistry-dev libgstreamer-plugins-base1.0-dev samba-dev oss4-dev libopenal-dev
+
+    - name: Clone Wine repository
+      run: |
+        git clone https://gitlab.winehq.org/ElementalWarrior/wine.git /home/runner/work/affinity-wine/ElementalWarrior-wine
+        cd /home/runner/work/affinity-wine/ElementalWarrior-wine
+        git switch affinity-photo3-wine9.13-part3
+
+    - name: Build Wine
+      run: |
+        CORES=$(nproc)
+        mkdir -p /home/runner/work/affinity-wine/winewow64-build/ /home/runner/work/affinity-wine/wine-install/
+        cd /home/runner/work/affinity-wine/winewow64-build
+        /home/runner/work/affinity-wine/ElementalWarrior-wine/configure --prefix="/home/runner/work/affinity-wine/wine-install" --enable-archs=i386,x86_64
+        make --jobs $CORES
+        make install
+        rm -rf /home/runner/work/affinity-wine/winewow64-build
+
+    - name: Verify Wine installation
+      run: |
+        ls -la /home/runner/work/affinity-wine/wine-install
+
+    - name: Archive Wine installation
+      run: tar -czvf /home/runner/work/affinity-wine/wine-install.tar.gz -C /home/runner/work/affinity-wine/wine-install/ .
+
+    - name: Verify tarball creation
+      run: ls -la /home/runner/work/affinity-wine/wine-install.tar.gz
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: Affinity-Wine-Build-${{ github.run_id }}
+        path: /home/runner/work/affinity-wine/wine-install.tar.gz
+
+    - name: Upload to release
+      uses: ncipollo/release-action@v1
+      with:
+        repo_token: ${{ secrets.TOKEN_TO_UPLOAD }}
+        file: /home/runner/work/affinity-wine/wine-install.tar.gz
+        asset_name: Affinity-Wine-affinity-photo3-wine9.13-part3.tar.gz
+        tag: affinity-photo3-wine9.13-part3
