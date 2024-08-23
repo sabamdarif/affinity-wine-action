@@ -47,7 +47,11 @@ jobs:
         ${{ github.workspace }}/ElementalWarrior-wine/configure --prefix="${{ github.workspace }}/wine-install" --enable-archs=i386,x86_64
         make --jobs $CORES
         make install
+
+    - name: Cleanup
+      run: |
         rm -rf ${{ github.workspace }}/winewow64-build
+        rm -rf ${{ github.workspace }}/ElementalWarrior-wine
 
     - name: Verify Wine Installation
       run: |
