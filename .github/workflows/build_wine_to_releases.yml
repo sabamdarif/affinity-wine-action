@@ -1,4 +1,4 @@
-name: Compile Affinity Wine (To Artifact )
+name: Compile Affinity Wine (To Releases)
 
 on:
   push:
@@ -49,20 +49,24 @@ jobs:
         make install
         rm -rf ${{ github.workspace }}/winewow64-build
 
-    - name: Verify Wine installation
+    - name: Verify Wine Installation
       run: |
         ls -la ${{ github.workspace }}/wine-install
         mv ${{ github.workspace }}/wine-install ${{ github.workspace }}/wine-affinity
         ln -s ${{ github.workspace }}/wine-affinity/bin/wine ${{ github.workspace }}/wine-affinity/bin/wine64
 
-    - name: Archive Wine installation
+    - name: Archive Wine Installation
       run: tar -czvf ${{ github.workspace }}/wine-affinity.tar.gz -C ${{ github.workspace }}/wine-affinity/ .
 
     - name: Verify tarball creation
       run: ls -la ${{ github.workspace }}/wine-affinity.tar.gz
 
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v4
+    - name: Upload To Releases
+      uses: softprops/action-gh-release@v2
       with:
-        name: Affinity-Wine-Build-${{ github.run_id }}
-        path: ${{ github.workspace }}/wine-affinity.tar.gz
+        files: ${{ github.workspace }}/wine-affinity.tar.gz
+        token: ${{ secrets.GITHUB_TOKEN }}
+        name: ElementalWarrior-wine
+        tag_name: affinity-photo3-wine9.13-part3
+        draft: false
+        prerelease: false

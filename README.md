@@ -28,6 +28,10 @@ Build ElementalWarrior's Wine using github action to run Affinity apps in linux
 - After Workflow success, click on it
 - In `Summary` section under `Artifacts` you get a file called `Affinity-Wine-Build-`
 - Download and extract it
+<br>
+
+-  `Compile Affinity Wine (To Artifact )` To upload to build to github action's artifact section
+- `Compile Affinity Wine (To Releases )` To upload to build to github releases section
 
 ## Appendix
 
